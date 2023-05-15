@@ -76,7 +76,7 @@ def get_functional_account_data():
         page += 1
     return all_data
 
-logger = setup_logging
+logger = setup_logging()
 logger.info(f'get functional account data from {RD_FA_URL}')
 data = get_functional_account_data()
 filename = f'{DATA_DIR}/functional_accounts_{today_str}.json'
