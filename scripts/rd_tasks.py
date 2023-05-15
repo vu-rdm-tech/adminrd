@@ -1,6 +1,6 @@
 from config import API_KEY, RD_FA_URL
 import requests
-import requests_cache
+#import requests_cache
 import json
 from datetime import datetime
 
@@ -59,6 +59,6 @@ def get_functional_account_data():
 today = datetime.now()
 today_str = today.strftime('%Y%m%d')
 data = get_functional_account_data()
-filename = f'data/functional_accounts_{today_str}.json'
+filename = f'./data/functional_accounts_{today_str}.json'
 
 _store(data, filename)
