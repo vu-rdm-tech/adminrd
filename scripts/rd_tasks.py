@@ -67,7 +67,7 @@ def get_functional_account_data():
     last_page = json_data['meta']['last_page']
     logger.info(f'last page {last_page}')
     data = json_data['data']
-    all_data.extend(data)
+    all_data.extend(data) 
     while page<=last_page:
         res, cached = _do_getrequest(page=page, per_page=50, url=RD_FA_URL)
         json_data = res.json()
