@@ -1,3 +1,4 @@
 scripts/config.py
 scripts/data/*.json
 *.pyc
+*.log
