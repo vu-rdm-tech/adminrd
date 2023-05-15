@@ -82,3 +82,4 @@ data = get_functional_account_data()
 filename = f'{DATA_DIR}/functional_accounts_{today_str}.json'
 
 _store(data, filename)
+logger.info(f'Results stored as {filename}')
