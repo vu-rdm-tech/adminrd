@@ -66,9 +66,9 @@ class Project(models.Model):
     department = models.ForeignKey(Department, on_delete=models.CASCADE, default=3)
     budget = models.ForeignKey(Budget, on_delete=models.CASCADE)
     
-    create_date = models.DateField()
-    change_date = models.DateField()
-    end_date = models.DateField()
+    create_date = models.DateTimeField()
+    change_date = models.DateTimeField()
+    end_date = models.DateTimeField()
 
     quotum = models.IntegerField(default=10)
     
