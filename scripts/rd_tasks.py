@@ -151,6 +151,3 @@ filename = f'{DATA_DIR}/rdprojects_{today_str}.json'
 
 _store(adminrecords, filename)
 logger.info(f'Results stored as {filename}')
-
-
-
