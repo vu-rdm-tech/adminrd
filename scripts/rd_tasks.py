@@ -95,7 +95,7 @@ def _do_getrequest(payload={}, url=''):
 # get functional account data
 def get_functional_account_data():
     adminrecords = []
-    logger.info(f'Do the requests')
+    logger.info('Do the requests')
     # get totals
     page = 1
     res, cached = _do_getrequest(payload = {'per_page': 50, 'page': page}, url=RD_FA_URL)
