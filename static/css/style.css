@@ -1,0 +1,29 @@
+
+.container {
+    width: 1170px;
+}
+
+.navbar-brand img {
+    height: 60px;
+}
+
+.navbar-brand {
+    font-size: 32px;
+}
+
+.nav-item > a {
+    color: #0089cf;
+    border-right: 1px solid #0089cf;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.flat-list {
+    padding: 0px;
+}
+
+.flat-list li {
+    list-style: none;
+    margin-left: 0px;
+
+}
