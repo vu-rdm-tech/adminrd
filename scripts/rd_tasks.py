@@ -103,13 +103,13 @@ def get_functional_account_data():
     last_page = json_data['meta']['last_page']
     logger.info(f'last page {last_page}')
     data = json_data['data']
-    while page<=last_page:
+    while page <= last_page:
         for d in data:
             res2, cached = _do_getrequest(url=f'{RD_FA_URL}/{d["id"]}/')
             fa_data = res2.json()['data']
             if d['id']==fa_data['id']:
                 record = {
-                    "id": fa_data['id'],
+                    "rdid": fa_data['id'],
                     "name": fa_data['name'],
                     "owner_name": d['owner_name'], # seems wrong?
                     "description": fa_data['description'],
