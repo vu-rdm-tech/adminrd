@@ -147,6 +147,7 @@ def get_functional_account_data():
 logger = setup_logging()
 logger.info(f'get functional account data from {RD_FA_URL}')
 adminrecords = get_functional_account_data()
+adminrecords['collected'] = today_str
 filename = f'{DATA_DIR}/rdprojects_{today_str}.json'
 
 _store(adminrecords, filename)
