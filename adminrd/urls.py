@@ -15,7 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from adminrd import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', views.index, name='index'),
+    path('project_chart_json', views.project_chart_json, name='project_chart_json'),
+    path('size_chart_json', views.size_chart_json, name='size_chart_json'),
+    path('quotum_chart_json', views.quotum_chart_json, name='quotum_chart_json'),
+    path('user_chart_json', views.user_chart_json, name='user_chart_json'),
 ]

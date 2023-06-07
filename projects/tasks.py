@@ -88,11 +88,17 @@ def process_rd_stats():
                 try:
                     collected = datetime.strptime(js['collected'], '%Y%m%d').date()
                     data = js['data']
+                    miscstats = js['miscstats']
                 except:
                     # old style
                     filedate_str = os.path.splitext(file)[0].split('_')[1]
                     collected = datetime.strptime(filedate_str, '%Y%m%d').date()
                     data = js
+                    miscstats =     miscstats = {
+                        'total_internal_members': 0,
+                        'total_external_members': 0,
+                        'total_functional_members': 0
+                    }
                 
                 size_total = 0
                 projects_total = 0
@@ -105,19 +111,13 @@ def process_rd_stats():
                         _store_fa_data(fa=fa, collected=collected)
                         quotum_total += fa['quotum']
                         size_total += fa['usage']
-                        try:
-                            users_total = users_total + fa['internal_users'] + fa['external_users']
-                            internal_users_total += fa['intenal_users']
-                            external_users_total += fa['external_users']
-                        except: # fields missing in first data exports
-                            pass
                         projects_total += 1
                 MiscStats.objects.update_or_create(collected = collected, defaults={
                     'size_total': size_total,
                     'quotum_total': quotum_total,
-                    'users_total': users_total,
-                    'internal_users_total': internal_users_total,
-                    'external_users_total': external_users_total,
+                    'users_total': miscstats['total_internal_members'] + miscstats['total_external_members'],
+                    'internal_users_total': miscstats['total_internal_members'],
+                    'external_users_total': miscstats['total_external_members'],
                     'projects_total': projects_total
                 })
 
