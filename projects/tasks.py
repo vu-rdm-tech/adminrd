@@ -13,6 +13,68 @@ DATADIR=os.environ.get('DATADIR') # set via docker-compose
 logger = logging.getLogger(__name__)
 tz = timezone('Europe/Amsterdam')
 
+
+def _store_fa_data(fa, collected):
+    print(f'**************** {fa["name"]}')
+    #owner_name
+    owner, created = User.objects.get_or_create(rdid=fa['owner']['rdid'])
+    owner.username = fa['owner']['username']
+    owner.name = fa['owner']['name']
+    owner.email = fa['owner']['email']
+    owner.backend = fa['owner']['backend']['value']
+    owner.status = fa['owner']['status']
+    owner.last_login = datetime.strptime( fa['owner']['last_login'], '%Y-%m-%d %H:%M:%S').astimezone(tz)
+    owner.save()
+    
+    #department
+    # SBE_FIN_Sustainable_Investments
+    tmp = fa['name'].split('_')
+    if len(tmp) >= 3:
+        faculty = tmp[0]
+        abbreviation = tmp[1]
+    else:
+        faculty = 'unknown'
+        abbreviation = 'unknown'
+    department, created = Department.objects.get_or_create(faculty=faculty, abbreviation=abbreviation)
+    
+    #budget
+    if fa['costcenter'] is None:
+        cc = 'unknown'
+    else: 
+        cc = fa['costcenter']
+    budget, created = Budget.objects.get_or_create(code=cc)
+    if created: # do not overwrite manually corrected values
+        budget.type = 'u'
+        budget.vunetid = 'xxx123'
+    budget.save()
+
+    project, created = Project.objects.get_or_create(rdid=fa['rdid'], defaults = {
+        'create_date': datetime.strptime(fa['create_date'], '%Y-%m-%d %H:%M:%S').astimezone(tz)
+    })
+    project.name = fa['name']
+    project.description = fa['description']
+    try: # fields missing in first exports
+        project.internal_users = fa['internal_users']
+        project.external_users = fa['external_users']
+    except:
+        pass
+
+    project.change_date = datetime.strptime(fa['change_date'], '%Y-%m-%d %H:%M:%S').astimezone(tz)
+    if not fa['end_date'] is None:
+        project.end_date = datetime.strptime(fa['end_date'], '%Y-%m-%d %H:%M:%S').astimezone(tz)
+    project.quotum = fa['quotum']
+    project.owner_name = owner
+    project.budget = budget
+    project.department = department
+
+    project.save()
+
+    ProjectStats.objects.get_or_create(collected=collected, project=project, defaults={
+        'size': fa['usage'],
+        'quotum': fa['quotum']
+    })
+
+
 def process_rd_stats():
     files = sorted(os.listdir(DATADIR))
     logger.info(f'listing of datadir: [{", ".join(files)}]')
@@ -22,70 +84,43 @@ def process_rd_stats():
             cnt = cnt + 1
             logger.info(f'processing {file}')
             with open(f'{DATADIR}/{file}', 'r') as fp:
-                data = json.load(fp)
+                js = json.load(fp)
                 try:
-                    filedate_str = data['collected']
+                    collected = datetime.strptime(js['collected'], '%Y%m%d').date()
+                    data = js['data']
                 except:
                     # old style
                     filedate_str = os.path.splitext(file)[0].split('_')[1]
-                filedate = datetime.strptime(filedate_str, '%Y%m%d').date()
+                    collected = datetime.strptime(filedate_str, '%Y%m%d').date()
+                    data = js
                 
+                size_total = 0
+                projects_total = 0
+                users_total = 0
+                internal_users_total = 0
+                external_users_total = 0
+                quotum_total = 0
                 for fa in data:
-                    print(f'**************** {fa["name"]}')
                     if fa['status'] == 'active':
-                        #owner_name
-                        owner, created = User.objects.get_or_create(rdid=fa['owner']['rdid'])
-                        owner.username = fa['owner']['username']
-                        owner.name = fa['owner']['name']
-                        owner.email = fa['owner']['email']
-                        owner.backend = fa['owner']['backend']['value']
-                        owner.status = fa['owner']['status']
-                        owner.last_login = datetime.strptime( fa['owner']['last_login'], '%Y-%m-%d %H:%M:%S').astimezone(tz)
-                        owner.save()
-                        
-                        #department
-                        # SBE_FIN_Sustainable_Investments
-                        tmp = fa['name'].split('_')
-                        if len(tmp) >= 3:
-                            faculty = tmp[0]
-                            abbreviation = tmp[1]
-                        else:
-                            faculty = 'unknown'
-                            abbreviation = 'unknown'
-                        department, created = Department.objects.get_or_create(faculty=faculty, abbreviation=abbreviation)
-                        
-                        #budget
-                        if fa['costcenter'] is None:
-                            cc = 'unknown'
-                        else: 
-                            cc = fa['costcenter']
-                        budget, created = Budget.objects.get_or_create(code=cc)
-                        if created: # do not overwrite manually corrected values
-                            budget.type = 'u'
-                            budget.vunetid = 'xxx123'
-                        budget.save()
+                        _store_fa_data(fa=fa, collected=collected)
+                        quotum_total += fa['quotum']
+                        size_total += fa['usage']
+                        try:
+                            users_total = users_total + fa['internal_users'] + fa['external_users']
+                            internal_users_total += fa['intenal_users']
+                            external_users_total += fa['external_users']
+                        except: # fields missing in first data exports
+                            pass
+                        projects_total += 1
+                MiscStats.objects.update_or_create(collected = collected, defaults={
+                    'size_total': size_total,
+                    'quotum_total': quotum_total,
+                    'users_total': users_total,
+                    'internal_users_total': internal_users_total,
+                    'external_users_total': external_users_total,
+                    'projects_total': projects_total
+                })
 
-                        project, created = Project.objects.get_or_create(rdid=fa['rdid'], defaults = {
-                            'create_date': datetime.strptime(fa['create_date'], '%Y-%m-%d %H:%M:%S').astimezone(tz)
-                        })
-                        project.name = fa['name']
-                        project.description = fa['description']
-                        #2023-05-30 16:32:45
-
-                        project.change_date = datetime.strptime(fa['change_date'], '%Y-%m-%d %H:%M:%S').astimezone(tz)
-                        if not fa['end_date'] is None:
-                            project.end_date = datetime.strptime(fa['end_date'], '%Y-%m-%d %H:%M:%S').astimezone(tz)
-                        project.quotum = fa['quotum']
-                        project.owner_name = owner
-                        project.budget = budget
-                        project.department = department
-                        
-                        project.save()
-
-                        stats = ProjectStats.objects.get_or_create(collected=filedate, project=project, defaults={
-                            'size': fa['usage'],
-                            'quotum': fa['quotum']
-                        })
             shutil.move(f'{DATADIR}/{file}', f'{DATADIR}/archive/{file}')
 
 

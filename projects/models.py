@@ -10,7 +10,7 @@ class User(models.Model):
     email = models.CharField(max_length=100, blank=True)
     backend = models.CharField(max_length=50)
     status = models.CharField(max_length=50)
-    last_login = models.DateTimeField()
+    last_login = models.DateTimeField(null=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -86,7 +86,7 @@ class Project(models.Model):
     
 
 class MiscStats(models.Model):
-    size_total = models.DecimalField(max_digits=8, decimal_places=4)
+    size_total = models.DecimalField(max_digits=8, decimal_places=2)
     quotum_total = models.BigIntegerField(default=0)
     users_total = models.IntegerField(default=0)
     internal_users_total = models.IntegerField(default=0)
@@ -94,11 +94,13 @@ class MiscStats(models.Model):
     projects_total = models.IntegerField(default=6)
     collected = models.DateField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return f'collected - {self.collected}'
 
 
 class ProjectStats(models.Model):
     project = models.ForeignKey(Project, on_delete=models.SET_NULL, blank=True, null=True)
-    size = models.DecimalField(max_digits=8, decimal_places=4)
+    size = models.DecimalField(max_digits=8, decimal_places=2)
     quotum = models.IntegerField()
     collected = models.DateField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
