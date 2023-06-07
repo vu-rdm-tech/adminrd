@@ -95,6 +95,7 @@ def _do_getrequest(payload={}, url=''):
 # get functional account data
 def get_functional_account_data():
     adminrecords = []
+    userlist = []
     logger.info('Do the requests')
     # get totals
     page = 1
@@ -127,6 +128,8 @@ def get_functional_account_data():
                 internal_users = 0
                 external_users = 0
                 for account in fa_data['memberships']:
+                    if account['username'] not in userlist:
+                        userlist.append(account['username'])
                     if account['username'].endswith('@vu.nl'):
                         internal_users += 1
                     else:
@@ -151,14 +154,31 @@ def get_functional_account_data():
         json_data = res.json()
         data = json_data['data']
 
-    return adminrecords
+    total_internal_members = 0
+    total_external_members = 0
+    total_functional_members = 0
+    for user in userlist:
+        if user.endswith('@vu.nl'):
+            total_internal_members += 1
+        elif '@' in user:
+            total_external_members += 1
+        else:
+            total_functional_members += 1     
+    miscstats = {
+        'total_internal_members': total_internal_members,
+        'total_external_members': total_external_members,
+        'total_functional_members': total_functional_members,
+        'userlist': userlist
+    }
+    return adminrecords, miscstats
 
 logger = setup_logging()
 logger.info(f'get functional account data from {RD_FA_URL}')
-adminrecords = get_functional_account_data()
+adminrecords, miscstats = get_functional_account_data()
 data = {
     'data': adminrecords,
-    'collected': today_str
+    'collected': today_str,
+    'miscstats': miscstats
 }
 filename = f'{DATA_DIR}/rdprojects_{today_str}.json'
 
