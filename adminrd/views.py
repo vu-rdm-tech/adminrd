@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from projects.models import Project, ProjectStats, MiscStats
+from projects.models import Project, ProjectStats, MiscStats, Department
 from datetime import datetime
 from django.http import JsonResponse
 
@@ -8,12 +8,17 @@ today = datetime.now()
 end_month = today.month
 end_year = today.year
 
+COLORSET = ['rgba(141,211,199)', 'rgba(255,255,179)', 'rgba(190,186,218)', 'rgba(251,128,114)', 'rgba(128,177,211)',
+            'rgba(253,180,98)', 'rgba(179,222,105)', 'rgba(252,205,229)', 'rgba(217,217,217)', 'rgba(188,128,189)',
+            'rgba(204,235,197)', 'rgba(255,237,111)', 'rgba(255,237,111)', 'rgba(255,237,111)', 'rgba(255,237,111)', 'rgba(255,237,111)', 'rgba(255,237,111)', 'rgba(255,237,111)', 'rgba(255,237,111)']
+
 # Create your views here.
 def index(request):
     miscstats = MiscStats.objects.latest('collected')
     context = {
         'num_projects': Project.objects.filter(delete_date__isnull=True).all().count,
-        'num_projects_large': ProjectStats.objects.filter(size__gt = 500, collected = miscstats.collected).all().count,
+        'num_projects_large': ProjectStats.objects.filter(size__gt = 500, size__lt = 2000, collected = miscstats.collected).all().count,
+        'num_projects_large2': ProjectStats.objects.filter(size__gt = 2000, collected = miscstats.collected).all().count,
         'total_size': "%3.1f" % (miscstats.size_total / 1024),
         'total_quotum': "%3.1f" % (miscstats.quotum_total / 1024),
         'num_users': miscstats.users_total,
@@ -115,4 +120,35 @@ def user_chart_json(request):
             'borderWidth': 1,
         },
     ]
+    return JsonResponse(data={'labels': labels, 'datasets': datasets})
+
+def faculty_chart_json(request):
+    labels = []
+    data = []
+    index = {}
+    i = 0
+    colors = []
+    projects = Project.objects.filter(delete_date__isnull=True).order_by('department').all()
+    for project in projects:
+        faculty = Department.objects.get(id=project.department.id).faculty
+        if faculty=="BET" or faculty=="FEW": 
+            faculty="BETA"
+        if faculty=="LET" or faculty=="fGW":
+            faculty="FGW"
+        if faculty=="FPP" or faculty=="FBG":
+            faculty="FGB"
+        if faculty not in ["ACTA", "SBE", "FSW", "FGB", "FGW", "BETA","RCH", "FRT"]:
+            faculty="other"
+        if faculty not in labels:
+            index[faculty] = i
+            data.append(0)
+            labels.append(faculty)
+            colors.append(COLORSET[i])
+            i += 1
+        data[index[faculty]] += 1
+    datasets = [{
+        'label': 'Faculty',
+        'backgroundColor': colors,
+        'data': data
+    }]
     return JsonResponse(data={'labels': labels, 'datasets': datasets})

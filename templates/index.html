@@ -7,7 +7,10 @@
             <strong>Projects:</strong> {{ num_projects }}
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
-            <strong>Over 500GB:</strong> {{ num_projects_large }}
+            <strong>Large (500-2000):</strong> {{ num_projects_large }}
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <strong>Very large (>2000):</strong> {{ num_projects_large2 }}
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
             <strong>Usage:</strong> {{ total_size }} TB
@@ -22,11 +25,15 @@
     
     <canvas id="project-chart" data-url="{% url 'project_chart_json' %}"></canvas>
     <hr/>
+    <canvas id="faculty-chart" data-url="{% url 'faculty_chart_json' %}"></canvas>
+    <hr/>
     <canvas id="size-chart" data-url="{% url 'size_chart_json' %}"></canvas>
     <hr/>
     <canvas id="user-chart" data-url="{% url 'user_chart_json' %}"></canvas>
     <hr/>
     <canvas id="quotum-chart" data-url="{% url 'quotum_chart_json' %}"></canvas>
+    <hr/>
+    <canvas id="faculty-chart" data-url="{% url 'faculty_chart_json' %}"></canvas>
     
 
     <script>
@@ -35,6 +42,7 @@
             setStackedBarChart($("#size-chart"), 'Usage (TB)', false);
             setStackedBarChart($("#user-chart"), 'Number of users', true);
             setStackedBarChart($("#quotum-chart"), 'Quota (TB)', true);
+            setPieChart($("#faculty-chart"), 'Projects per faculty', false);
         });
     </script>
 {% endblock %}

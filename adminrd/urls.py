@@ -24,4 +24,5 @@ urlpatterns = [
     path('size_chart_json', views.size_chart_json, name='size_chart_json'),
     path('quotum_chart_json', views.quotum_chart_json, name='quotum_chart_json'),
     path('user_chart_json', views.user_chart_json, name='user_chart_json'),
+    path('faculty_chart_json', views.faculty_chart_json, name='faculty_chart_json'),
 ]
