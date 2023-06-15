@@ -122,6 +122,7 @@ def get_functional_account_data():
                     "costcenter": fa_data['costcenter'],
                     "usage": fa_data['storage']['usage']['value'],
                     "quotum": fa_data['storage']['quotum']['value'],
+                    "last_update": fa_data['storage']['last_update'],
                     "owner":   {}
                 }
                 users = 0

@@ -58,7 +58,7 @@ def _store_fa_data(fa, collected):
         project.external_users = fa['external_users']
     except:
         pass
-
+    project.last_update = datetime.strptime(fa['last_update'], '%Y-%m-%d %H:%M:%S').astimezone(tz)
     project.change_date = datetime.strptime(fa['change_date'], '%Y-%m-%d %H:%M:%S').astimezone(tz)
     if not fa['end_date'] is None:
         project.end_date = datetime.strptime(fa['end_date'], '%Y-%m-%d %H:%M:%S').astimezone(tz)
@@ -66,6 +66,7 @@ def _store_fa_data(fa, collected):
     project.owner_name = owner
     project.budget = budget
     project.department = department
+    
 
     project.save()
 

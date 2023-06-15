@@ -68,6 +68,7 @@ class Project(models.Model):
     
     create_date = models.DateTimeField()
     change_date = models.DateTimeField(null=True)
+    last_update = models.DateTimeField(null=True)
     end_date = models.DateTimeField(null=True)
 
     quotum = models.IntegerField(default=10)

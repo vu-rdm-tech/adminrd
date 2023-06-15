@@ -16,16 +16,18 @@ COLORSET = ['rgba(141,211,199)', 'rgba(255,255,179)', 'rgba(190,186,218)', 'rgba
             'rgba(253,180,98)', 'rgba(179,222,105)', 'rgba(252,205,229)', 'rgba(217,217,217)', 'rgba(188,128,189)',
             'rgba(204,235,197)', 'rgba(255,237,111)', 'rgba(255,237,111)', 'rgba(255,237,111)', 'rgba(255,237,111)', 'rgba(255,237,111)', 'rgba(255,237,111)', 'rgba(255,237,111)', 'rgba(255,237,111)']
 
+
 # Create your views here.
 def index(request):
     miscstats = MiscStats.objects.latest('collected')
     cutoff = make_aware(datetime.combine(miscstats.collected, datetime.min.time())) - timedelta(days=366)
+    logger.info(f'******** cutoff: {cutoff}')
     context = {
         'num_projects': Project.objects.filter(delete_date__isnull=True).all().count,
         'num_projects_large': ProjectStats.objects.filter(size__gt = 500, size__lt = 2000, collected = miscstats.collected).all().count,
         'num_projects_large2': ProjectStats.objects.filter(size__gt = 2000, collected = miscstats.collected).all().count,
         # change date over a year ago
-        'stale_projects': Project.objects.filter(change_date__lt = cutoff).all().count,
+        'stale_projects': Project.objects.filter(last_update__lt = cutoff).all().count,
         'total_size': "%3.1f" % (miscstats.size_total / 1024),
         'total_quotum': "%3.1f" % (miscstats.quotum_total / 1024),
         'num_users': miscstats.users_total,
