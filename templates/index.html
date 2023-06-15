@@ -13,6 +13,9 @@
             <strong>Very large (>2000):</strong> {{ num_projects_large2 }}
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
+            <strong>last changed >1 year:</strong> {{ stale_projects }}
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
             <strong>Usage:</strong> {{ total_size }} TB
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -29,6 +32,8 @@
     <hr/>
     <canvas id="size-chart" data-url="{% url 'size_chart_json' %}"></canvas>
     <hr/>
+    <canvas id="size-breakdown-chart" data-url="{% url 'size_breakdown_chart_json' %}"></canvas>
+    <hr/>
     <canvas id="user-chart" data-url="{% url 'user_chart_json' %}"></canvas>
     <hr/>
     <canvas id="quotum-chart" data-url="{% url 'quotum_chart_json' %}"></canvas>
@@ -43,6 +48,7 @@
             setStackedBarChart($("#user-chart"), 'Number of users', true);
             setStackedBarChart($("#quotum-chart"), 'Quota (TB)', true);
             setPieChart($("#faculty-chart"), 'Projects per faculty', false);
+            setBarChart($("#size-breakdown-chart"), 'Size breakdown (GB)', false);
         });
     </script>
 {% endblock %}

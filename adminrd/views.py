@@ -1,12 +1,16 @@
 from django.shortcuts import render
 from projects.models import Project, ProjectStats, MiscStats, Department
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.http import JsonResponse
+import logging
+from django.utils.timezone import now, make_aware
 
 start_year = 2023
 today = datetime.now()
 end_month = today.month
 end_year = today.year
+
+logger = logging.getLogger(__name__)
 
 COLORSET = ['rgba(141,211,199)', 'rgba(255,255,179)', 'rgba(190,186,218)', 'rgba(251,128,114)', 'rgba(128,177,211)',
             'rgba(253,180,98)', 'rgba(179,222,105)', 'rgba(252,205,229)', 'rgba(217,217,217)', 'rgba(188,128,189)',
@@ -15,10 +19,13 @@ COLORSET = ['rgba(141,211,199)', 'rgba(255,255,179)', 'rgba(190,186,218)', 'rgba
 # Create your views here.
 def index(request):
     miscstats = MiscStats.objects.latest('collected')
+    cutoff = make_aware(datetime.combine(miscstats.collected, datetime.min.time())) - timedelta(days=366)
     context = {
         'num_projects': Project.objects.filter(delete_date__isnull=True).all().count,
         'num_projects_large': ProjectStats.objects.filter(size__gt = 500, size__lt = 2000, collected = miscstats.collected).all().count,
         'num_projects_large2': ProjectStats.objects.filter(size__gt = 2000, collected = miscstats.collected).all().count,
+        # change date over a year ago
+        'stale_projects': Project.objects.filter(change_date__lt = cutoff).all().count,
         'total_size': "%3.1f" % (miscstats.size_total / 1024),
         'total_quotum': "%3.1f" % (miscstats.quotum_total / 1024),
         'num_users': miscstats.users_total,
@@ -151,4 +158,28 @@ def faculty_chart_json(request):
         'backgroundColor': colors,
         'data': data
     }]
+    return JsonResponse(data={'labels': labels, 'datasets': datasets})
+
+def size_breakdown_chart_json(request):
+    labels = ['0', '>0-10', '10-50', '50-100', '100-500', '500-1000', '>1000']	
+    data = []
+    collected=MiscStats.objects.latest('collected').collected
+    data.append(ProjectStats.objects.filter(size = 0, collected = collected).all().count())
+    data.append(ProjectStats.objects.filter(size__gt = 0, size__lte = 10, collected = collected).all().count())
+    data.append(ProjectStats.objects.filter(size__gt = 10, size__lte = 50, collected = collected).all().count())
+    data.append(ProjectStats.objects.filter(size__gt = 50, size__lte = 100, collected = collected).all().count())
+    data.append(ProjectStats.objects.filter(size__gt = 100, size__lte = 500, collected = collected).all().count())
+    data.append(ProjectStats.objects.filter(size__gt = 500, size__lte = 1000, collected = collected).all().count())
+    data.append(ProjectStats.objects.filter(size__gt = 1000, collected = collected).all().count())
+    
+    
+    datasets = [
+        {
+            'label': 'Size breakdown',
+            'backgroundColor': 'rgb(128,177,211, 0.4)',
+            'borderColor': 'rgba(128,177,211)',
+            'borderWidth': 1,
+            'data': data,
+        },
+    ]
     return JsonResponse(data={'labels': labels, 'datasets': datasets})
