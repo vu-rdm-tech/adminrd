@@ -26,7 +26,7 @@ def index(request):
         'num_projects': Project.objects.filter(delete_date__isnull=True).all().count,
         # change date over a year ago
         'stale_projects': Project.objects.filter(last_update__lt = cutoff).all().count,
-        'stale_empty_projects': Project.objects.filter(last_update__lt = cutoff, size = 0).all().count,
+        #'stale_empty_projects': Project.objects.filter(last_update__lt = cutoff, size = 0).all().count,
         'total_size': "%3.1f" % (miscstats.size_total / 1024),
         'total_quotum': "%3.1f" % (miscstats.quotum_total / 1024),
         'num_users': miscstats.users_total,
