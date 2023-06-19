@@ -7,13 +7,10 @@
             <strong>Projects:</strong> {{ num_projects }}
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
-            <strong>Large (500-2000):</strong> {{ num_projects_large }}
+            <strong>last update >1 year:</strong> {{ stale_projects }}
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
-            <strong>Very large (>2000):</strong> {{ num_projects_large2 }}
-        </li>
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-            <strong>last changed >1 year:</strong> {{ stale_projects }}
+            <strong>last update >1 year and empty:</strong> {{ stale_empty_projects }}
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
             <strong>Usage:</strong> {{ total_size }} TB
