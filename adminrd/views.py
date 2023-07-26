@@ -162,13 +162,12 @@ def faculty_chart_json(request):
     return JsonResponse(data={'labels': labels, 'datasets': datasets})
 
 def size_breakdown_chart_json(request):
-    labels = ['0', '>0-10', '10-50', '50-100', '100-500', '500-1000', '>1000']	
+    labels = ['empty', '0-10', '10-100', '100-500', '500-1000', '>1000']	
     data = []
     collected=MiscStats.objects.latest('collected').collected
     data.append(ProjectStats.objects.filter(size = 0, collected = collected).all().count())
     data.append(ProjectStats.objects.filter(size__gt = 0, size__lte = 10, collected = collected).all().count())
-    data.append(ProjectStats.objects.filter(size__gt = 10, size__lte = 50, collected = collected).all().count())
-    data.append(ProjectStats.objects.filter(size__gt = 50, size__lte = 100, collected = collected).all().count())
+    data.append(ProjectStats.objects.filter(size__gt = 10, size__lte = 100, collected = collected).all().count())
     data.append(ProjectStats.objects.filter(size__gt = 100, size__lte = 500, collected = collected).all().count())
     data.append(ProjectStats.objects.filter(size__gt = 500, size__lte = 1000, collected = collected).all().count())
     data.append(ProjectStats.objects.filter(size__gt = 1000, collected = collected).all().count())
