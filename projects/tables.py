@@ -10,12 +10,16 @@ class ProjectTable(tables.Table):
     size = tables.Column()
     quotum = tables.Column()
     create_date = tables.Column()
+    last_update = tables.Column()
     id = tables.Column(orderable=False, verbose_name='')
 
     def render_id(self, value):
         return format_html(f'<a href="{value}">details</>')
 
-    def render_request_date(self, value):
+    def render_create_date(self, value):
+        return value.strftime("%Y-%m-%d")
+    
+    def render_last_update(self, value):
         return value.strftime("%Y-%m-%d")
 
     class Meta:

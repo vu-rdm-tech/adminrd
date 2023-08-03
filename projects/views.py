@@ -27,6 +27,7 @@ def projects_index_table(request):
         d['quotum'] = p.quotum
         d['create_date'] = p.create_date
         d['size'] = ProjectStats.objects.filter(project=p).latest('collected').size
+        d['last_update'] = p.last_update
         #d = _get_rf_table(p, d)
         data.append(d)
 
