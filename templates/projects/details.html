@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+        <h3>{{ data.project.name }}</h3>
+        <p>{{ data.project.description }}</p>
+        <p><strong>Quotum:</strong> {{ data.project.quotum }}GB<br>
+        <strong>Date created:</strong> {{ data.project.created }}<br>
+        <strong>Current size:</strong> {{ data.project.size }}</p>
+
+    <!--<canvas id="project-size-chart" data-url="project_size_chart_json/{{ data.project.id }}"></canvas>-->
+    <canvas id="project-size-chart" data-url="project_size_chart_json/{{ data.project.id }}"></canvas>
+    <hr/>
+    <canvas id="project-delta-chart" data-url="project_delta_chart_json/{{ data.project.id }}"></canvas>
+    <script>
+        $(function () {
+            setStackedBarChart($("#project-size-chart"), 'Size', false);
+            setStackedBarChart($("#project-delta-chart"), 'Growth', false);
+        });
+    </script>
+{% endblock %}
