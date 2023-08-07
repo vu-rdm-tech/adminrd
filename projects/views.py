@@ -101,7 +101,7 @@ def project_size_chart_json(request, project_id):
         i += 1
     datasets = [
         {
-            'label': 'Research',
+            'label': 'Usage',
             'backgroundColor': 'rgba(237, 154, 200, 0.4)',
             'borderColor': 'rgba(237, 154, 200)',
             'borderWidth': 1,
@@ -120,7 +120,7 @@ def project_delta_chart_json(request, project_id):
         i += 1
     datasets = [
         {
-            'label': 'Research',
+            'label': 'Usage',
             'backgroundColor': 'rgba(237, 154, 200, 0.4)',
             'borderColor': 'rgba(237, 154, 200)',
             'borderWidth': 1,
