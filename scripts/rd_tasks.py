@@ -19,32 +19,6 @@ requests_cache.install_cache(cache_name='rd_requests_cache', allowable_methods=(
 #        Append to functional_accounts
 # Store functional_accounts as json
 
-
-'''
-{
-      "id": 10940,
-      "name": "FGB_MLP_Leadership_Non-verbal_Behavior_Volleyball",
-      "description": "Research Project",
-      "last_login": "2023-03-21 11:16:50",
-      "status": "active",
-      "create_date": "2023-03-21 11:16:32",
-      "change_date": "2023-03-21 11:21:40",
-      "end_date": null,
-      "costcenter": null,
-      "usage": 270.17654419,
-      "quotum": 2000,
-      "owner":   {
-          "id": 10935,
-          "username": "rhr700@vu.nl",
-          "name": "R.I. Hutter",
-          "email": "v.hutter@vu.nl",
-          "backend": "institutional",
-          "last_login": "2023-05-22 11:54:00",
-          "status":"active",
-      }
-}
-'''
-
 today = datetime.now()
 today_str = today.strftime('%Y%m%d')
 year = today.strftime('%Y')
