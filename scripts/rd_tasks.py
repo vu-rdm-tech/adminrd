@@ -7,18 +7,6 @@ import logging
 
 requests_cache.install_cache(cache_name='rd_requests_cache', allowable_methods=('GET', 'POST'), expire_after=timedelta(hours=1))
 
-
-
-# get all functional accounts
-# functional_accounts = []
-# Loop through ids
-#   Get Functional account
-#        Loop through memberships
-#           if name==owner_name store
-#               add user info               
-#        Append to functional_accounts
-# Store functional_accounts as json
-
 today = datetime.now()
 today_str = today.strftime('%Y%m%d')
 year = today.strftime('%Y')
@@ -51,8 +39,8 @@ def _do_getrequest(payload={}, url=''):
     headers = {
                 'Accept': 'application/json',
                 'Accept-Language': 'en',
-                'Authorization': f'Authorization: Bearer {API_KEY}'
-               }
+                'Authorization': f'Authorization: Bearer {API_KEY}',
+            }
     res = requests.get(url, headers=headers, params=payload)
     try:
         cached = res.from_cache
