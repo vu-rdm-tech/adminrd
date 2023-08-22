@@ -117,3 +117,6 @@ scripts/config.py
 *.json
 
 *.sqlite
+
+static/admin/
+static/django_tables2/
