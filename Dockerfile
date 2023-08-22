@@ -17,5 +17,7 @@ RUN chmod +x entrypoint.sh
 
 ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
 
+RUN chmod -R 777 /usr/src/app/static
+
 EXPOSE 8000
 CMD sh -c "python manage.py runserver 0.0.0.0:8000"
