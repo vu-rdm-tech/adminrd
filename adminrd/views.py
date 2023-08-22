@@ -1,9 +1,12 @@
 from django.shortcuts import render
 from projects.models import Project, ProjectStats, MiscStats, Department
 from datetime import datetime, timedelta
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 import logging
 from django.utils.timezone import now, make_aware
+from django.contrib.auth.decorators import login_required
+from projects.reports import generate_yearly_report
+import mimetypes
 
 start_year = 2023
 today = datetime.now()
@@ -31,8 +34,26 @@ def index(request):
         'total_quotum': "%3.1f" % (miscstats.quotum_total / 1024),
         'num_users': miscstats.users_total,
         'last_updated': miscstats.collected,
+        'current_year': end_year,
+        'previous_year': end_year-1,
     }
     return render(request, 'index.html', context=context)
+
+@login_required(login_url='/admin/login/')
+def download_billing_report(request, year: int):
+    # fill these variables with real values
+    fl_path = generate_yearly_report(int(year), include_revisions=True)
+    if int(year) == today.year:
+        month = today.month
+    else:
+        month = 12
+    filename = f'researchdrive_cost_report_{year}-{month}.xlsx'
+
+    fl = open(fl_path, 'rb')
+    mime_type, _ = mimetypes.guess_type(fl_path)
+    response = HttpResponse(fl, content_type=mime_type)
+    response['Content-Disposition'] = "attachment; filename=%s" % filename
+    return response
 
 def _quarterly_miscstats():
     quarters = [3, 6, 9, 12]
