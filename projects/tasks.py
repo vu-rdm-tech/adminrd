@@ -95,7 +95,7 @@ def process_rd_stats():
                     filedate_str = os.path.splitext(file)[0].split('_')[1]
                     collected = datetime.strptime(filedate_str, '%Y%m%d').date()
                     data = js
-                    miscstats =     miscstats = {
+                    miscstats = {
                         'total_internal_members': 0,
                         'total_external_members': 0,
                         'total_functional_members': 0

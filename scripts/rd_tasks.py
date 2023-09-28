@@ -93,7 +93,7 @@ def get_functional_account_data():
                 for account in fa_data['memberships']:
                     if account['username'] not in userlist:
                         userlist.append(account['username'])
-                    if account['username'].endswith('@vu.nl'):
+                    if account['username'].endswith('vu.nl') or account['username'].endswith('acta.nl'):
                         internal_users += 1
                     else:
                         external_users += 1

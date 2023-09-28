@@ -1,22 +1,18 @@
-from projects.models import Project, ProjectStats
 import logging
-import os
-from datetime import datetime
 import math
-from django.conf import settings
 import json
+from datetime import datetime
 import pandas as pd
+from projects.models import Project, ProjectStats
 
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
 
 logger = logging.getLogger(__name__)
-
 GB = 1024 * 1024 * 1024
 today = datetime.now()
 
+
 def _monthly_stats(project, start_year, end_year):
-    stats={}
+    stats = {}
     for year in range(start_year, end_year + 1):
         if year not in stats:
             stats[year] = {}
@@ -24,10 +20,11 @@ def _monthly_stats(project, start_year, end_year):
             if month not in stats[year]:
                 stats[year][month] = {}
             s = ProjectStats.objects.filter(project=project, collected__year=year,
-                                        collected__month=month).order_by('collected').last()
+                                            collected__month=month).order_by('collected').last()
             if s is not None:
                 stats[year][month]['size'] = float(s.size)
     return stats
+
 
 def _yearly_stats(project, start_year, end_year):
     stats={}
@@ -40,9 +37,9 @@ def _yearly_stats(project, start_year, end_year):
     return stats
 
 
-
 def get_usage_data(start_year, end_year, include_revisions=True):
-    '''get monthly usage data for all projects from the databse
+    '''
+    get monthly usage data for all projects from the databse
 
     Arguments:
         start_year {int} -- _description_
@@ -50,7 +47,7 @@ def get_usage_data(start_year, end_year, include_revisions=True):
 
     Returns:
         usage_data {dict} -- dict with project id as key and a dict with the project details and usage data as value
-    '''    
+    '''
     projects = Project.objects.filter(delete_date__isnull=True).all()
     usage_data = {}
     for project in projects:
@@ -88,7 +85,8 @@ def calculate_blocks(gigabytes, block_size_GB=1024):
     gigabytes = gigabytes + 0.0001 # avoid 0
     return int(math.ceil(gigabytes/block_size_GB))
 
-def calculate_yearly_cost(size, free_block = 500, first_block = 2048, first_block_cost = 200, block_size = 1024, block_cost = 250):
+
+def calculate_yearly_cost(size,free_block=500,first_block=2048,first_block_cost=200,block_size=1024,block_cost=250):
     '''calculate yearly storage cost according to the VU pricing model.
     The default values are based on the costs for active storage. https://vu.nl/en/employee/research-data-support/costs-research-en-archiving-storage
 
@@ -111,6 +109,7 @@ def calculate_yearly_cost(size, free_block = 500, first_block = 2048, first_bloc
     if size > first_block:
         total_cost = total_cost + (calculate_blocks(size - (first_block), block_size)) * block_cost
     return total_cost
+
 
 def add_monthly_costs_to_projectdata(year, data):
     '''Loop through the data dict and use the monthly size to calculate the monthly costs
@@ -136,6 +135,7 @@ def add_monthly_costs_to_projectdata(year, data):
         data[project]['active_cost'] = active_cost
         data[project]['total_cost'] = active_cost
     return data
+
 
 def get_billable_data(year, usage):
     '''add costs to the usage data, drop all free projects 
@@ -180,6 +180,7 @@ def yearly_usage_formatted(year, data):
                 report_usage_data[row + 1][month] = round(data[project]['active'][year][month]['cost'], 2)
         row += 2
     return report_usage_data
+
 
 def generate_yearly_report(year, include_revisions=True):
     '''If not already present, generate a yearly report for the given year in xlsx and json format
