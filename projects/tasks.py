@@ -23,11 +23,10 @@ def _store_fa_data(fa, collected):
     owner.email = fa['owner']['email']
     owner.backend = fa['owner']['backend']['value']
     owner.status = fa['owner']['status']
-    try {
+    try:
         owner.last_login = datetime.strptime( fa['owner']['last_login'], '%Y-%m-%d %H:%M:%S').astimezone(tz)
-    } except {
+    except:
         owner.last_login = None
-    }	
     owner.save()
     
     #department
