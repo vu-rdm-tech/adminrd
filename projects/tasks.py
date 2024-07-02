@@ -39,6 +39,7 @@ def _store_fa_data(fa, collected):
         faculty = 'unknown'
         abbreviation = 'unknown'
     department, created = Department.objects.get_or_create(faculty=faculty, abbreviation=abbreviation)
+    department.save
     
     #budget
     if fa['costcenter'] is None:
@@ -73,14 +74,13 @@ def _store_fa_data(fa, collected):
     project.owner_name = owner
     project.budget = budget
     project.department = department
-    
-
     project.save()
 
     ProjectStats.objects.get_or_create(collected=collected, project=project, defaults={
         'size': fa['usage'],
         'quotum': fa['quotum']
     })
+    ProjectStats.save()
 
 
 def process_rd_stats():
@@ -128,6 +128,7 @@ def process_rd_stats():
                     'external_users_total': miscstats['total_external_members'],
                     'projects_total': projects_total
                 })
+                MiscStats.save()
 
             shutil.move(f'{DATADIR}/{file}', f'{DATADIR}/archive/{file}')
 
