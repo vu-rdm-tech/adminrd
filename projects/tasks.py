@@ -80,7 +80,6 @@ def _store_fa_data(fa, collected):
         'size': fa['usage'],
         'quotum': fa['quotum']
     })
-    ProjectStats.save()
 
 
 def process_rd_stats():
@@ -128,7 +127,6 @@ def process_rd_stats():
                     'external_users_total': miscstats['total_external_members'],
                     'projects_total': projects_total
                 })
-                MiscStats.save()
 
             shutil.move(f'{DATADIR}/{file}', f'{DATADIR}/archive/{file}')
 
