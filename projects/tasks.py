@@ -15,8 +15,6 @@ tz = timezone('Europe/Amsterdam')
 
 
 def _store_fa_data(fa, collected):
-    print(f'**************** {fa["name"]}')
-    #owner_name
     owner, created = User.objects.get_or_create(rdid=fa['owner']['rdid'])
     owner.username = fa['owner']['username']
     owner.name = fa['owner']['name']
