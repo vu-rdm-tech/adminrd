@@ -4,6 +4,7 @@ from .models import Project, ProjectStats, MiscStats
 from datetime import datetime
 from .tables import ProjectTable
 from django_tables2 import RequestConfig
+from .tables import ProjectTable, ProjectFilter
 
 GB = 1024 * 1024 * 1024
 start_year = 2021
@@ -18,12 +19,14 @@ class CustomObject():
     pass
 
 def projects_index_table(request):
-    pr = Project.objects.filter(delete_date__isnull=True).all().order_by('name')
+    f = ProjectFilter(request.GET, queryset=Project.objects.filter(delete_date__isnull=True).all().order_by('name'))
     data = []
-    for p in pr:
+    for p in f.qs:
         d = {}
         d['id'] = p.id
         d['name'] = p.name
+        d['department'] = p.department.abbreviation
+        d['faculty'] = p.department.faculty
         d['quotum'] = p.quotum
         d['create_date'] = p.create_date
         d['size'] = ProjectStats.objects.filter(project=p).latest('collected').size
@@ -34,7 +37,7 @@ def projects_index_table(request):
     table = ProjectTable(data)
     RequestConfig(request, paginate={'per_page': 10}).configure(table)
     return render(request, "projects/index.html", {
-        "table": table
+        "table": table, "filter": f
     })
     
 def project_detail_data(project_id):
