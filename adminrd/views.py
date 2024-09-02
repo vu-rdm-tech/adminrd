@@ -152,11 +152,7 @@ def user_chart_json(request):
     return JsonResponse(data={'labels': labels, 'datasets': datasets})
 
 def faculty_chart_json(request):
-    labels = []
-    data = []
-    index = {}
-    i = 0
-    colors = []
+    tempdata = {}
     projects = Project.objects.filter(delete_date__isnull=True).order_by('department').all()
     for project in projects:
         faculty = Department.objects.get(id=project.department.id).faculty
@@ -167,14 +163,26 @@ def faculty_chart_json(request):
         if faculty=="FPP" or faculty=="FBG":
             faculty="FGB"
         if faculty not in ["ACTA", "SBE", "FSW", "FGB", "FGW", "BETA","RCH", "FRT"]:
+            logger.info(faculty)
             faculty="other"
-        if faculty not in labels:
-            index[faculty] = i
-            data.append(0)
+        if faculty not in tempdata:
+            tempdata[faculty]=0
+        tempdata[faculty] += 1
+
+    labels = []
+    data = []
+    i = 0
+    colors = []
+    for faculty in dict(reversed(sorted(tempdata.items(), key=lambda item: item[1]))):
+        if not faculty=='other':
+            data.append(tempdata[faculty])
             labels.append(faculty)
             colors.append(COLORSET[i])
-            i += 1
-        data[index[faculty]] += 1
+            i+=1
+    data.append(tempdata['other'])
+    labels.append('other')
+    colors.append(COLORSET[i])
+
     datasets = [{
         'label': 'Faculty',
         'backgroundColor': colors,
