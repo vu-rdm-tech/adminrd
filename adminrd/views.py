@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from projects.reports import generate_yearly_report
 import mimetypes
 
+GB = 1024 * 1024 * 1024
 start_year = 2023
 today = datetime.now()
 end_month = today.month
@@ -151,6 +152,15 @@ def user_chart_json(request):
     ]
     return JsonResponse(data={'labels': labels, 'datasets': datasets})
 
+def _faculty_colors(data):
+    colorlist={}
+    i = 0
+    logger.debug(data)
+    for faculty in dict(sorted(data.items())):
+        colorlist[faculty]=COLORSET[i]
+        i+=1
+    return colorlist
+
 def faculty_chart_json(request):
     tempdata = {}
     projects = Project.objects.filter(delete_date__isnull=True).order_by('department').all()
@@ -171,17 +181,16 @@ def faculty_chart_json(request):
 
     labels = []
     data = []
-    i = 0
+    colorlist = _faculty_colors(tempdata)
     colors = []
     for faculty in dict(reversed(sorted(tempdata.items(), key=lambda item: item[1]))):
         if not faculty=='other':
             data.append(tempdata[faculty])
             labels.append(faculty)
-            colors.append(COLORSET[i])
-            i+=1
+            colors.append(colorlist[faculty])
     data.append(tempdata['other'])
     labels.append('other')
-    colors.append(COLORSET[i])
+    colors.append(colorlist['other'])
 
     datasets = [{
         'label': 'Faculty',
@@ -189,6 +198,46 @@ def faculty_chart_json(request):
         'data': data
     }]
     return JsonResponse(data={'labels': labels, 'datasets': datasets})
+
+def faculty_size_chart_json(request):
+    labels = []
+    tempdata = {}
+    data = []
+    index = {}
+    colors = []
+    projects = Project.objects.filter(delete_date__isnull=True).order_by('department').all()
+    for project in projects:
+        faculty = Department.objects.get(id=project.department.id).faculty
+        if faculty=="BET" or faculty=="FEW": 
+            faculty="BETA"
+        if faculty=="LET" or faculty=="fGW":
+            faculty="FGW"
+        if faculty=="FPP" or faculty=="FBG":
+            faculty="FGB"
+        if faculty not in ["ACTA", "SBE", "FSW", "FGB", "FGW", "BETA","RCH", "FRT"]:
+            logger.info(faculty)
+            faculty="other"
+        if faculty not in tempdata:
+            tempdata[faculty] = 0
+        stats = ProjectStats.objects.filter(project=project).latest('created')
+        tempdata[faculty] += stats.size
+    colorlist = _faculty_colors(tempdata)
+    for faculty in dict(reversed(sorted(tempdata.items(), key=lambda item: item[1]))):
+        if not faculty=='other':
+            data.append(tempdata[faculty])
+            labels.append(faculty)
+            colors.append(colorlist[faculty])
+    data.append(tempdata['other'])
+    labels.append('other')
+    colors.append(colorlist['other'])
+    
+    datasets = [{
+        'label': 'Faculty',
+        'backgroundColor': colors,
+        'data': data
+    }]
+    return JsonResponse(data={'labels': labels, 'datasets': datasets})
+
 
 def size_breakdown_chart_json(request):
     labels = ['empty', '0-10', '10-100', '100-500', '500-1000', '>1000']	
