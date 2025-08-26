@@ -11,7 +11,8 @@ services:
         - APP_USER_GID=${USER_GID}
     user: ${USER_UID}:${USER_GID}
     depends_on:
-      - adminrd-db
+      adminrd-db:
+        condition: service_healthy
     environment:
       DB_USER: ${DB_USER}
       DB_PW: ${DB_PW}
@@ -34,7 +35,8 @@ services:
         - APP_USER_GID=${USER_GID}
     user: ${USER_UID}:${USER_GID}
     depends_on:
-      - adminrd-db
+      adminrd-db:
+        condition: service_healthy
     environment:
       DB_USER: ${DB_USER}
       DB_PW: ${DB_PW}
@@ -57,10 +59,13 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_DB: ${DB_NAME}
       PGDATA: /var/lib/postgresql/data/pgdata
-    ports:
-      - "15432:5432"
     volumes:
       - /docker/adminrd/db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d db -U django"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   nginx:
     image: nginx:latest
