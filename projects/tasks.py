@@ -113,10 +113,13 @@ def process_rd_stats():
                 quotum_total = 0
                 for fa in data:
                     if fa['status'] == 'active':
-                        _store_fa_data(fa=fa, collected=collected)
-                        quotum_total += fa['quotum']
-                        size_total += fa['usage']
-                        projects_total += 1
+                        if fa['owner']:
+                            _store_fa_data(fa=fa, collected=collected)
+                            quotum_total += fa['quotum']
+                            size_total += fa['usage']
+                            projects_total += 1
+                        else:
+                            logger.error(f'{fa["rdid"]} - {fa["name"]} has no owner.')
                 MiscStats.objects.update_or_create(collected = collected, defaults={
                     'size_total': size_total,
                     'quotum_total': quotum_total,
