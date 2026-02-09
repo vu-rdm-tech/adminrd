@@ -40,6 +40,8 @@
     <hr/>
     <canvas id="size-chart" data-url="{% url 'size_chart_json' %}"></canvas>
     <hr/>
+    <canvas id="paid-free-chart" data-url="{% url 'paid_free_chart_json' %}"></canvas>
+    <hr/>
     <canvas id="size-breakdown-chart" data-url="{% url 'size_breakdown_chart_json' %}"></canvas>
     <hr/>
     <canvas id="user-chart" data-url="{% url 'user_chart_json' %}"></canvas>
@@ -51,6 +53,7 @@
         $(function () {
             setStackedBarChart($("#project-chart"), 'Number of projects', false);
             setStackedBarChart($("#size-chart"), 'Usage (TB)', false);
+            setStackedBarChart($("#paid-free-chart"), 'Paid-Free (TB)', false);
             setStackedBarChart($("#user-chart"), 'Number of users', true);
             setStackedBarChart($("#quotum-chart"), 'Quota (TB)', true);
             setPieChart($("#faculty-chart"), 'Projects per faculty', false);
