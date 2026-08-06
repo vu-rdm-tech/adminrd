@@ -3,21 +3,29 @@ FROM python:3.11
 WORKDIR /usr/src/app
 
 COPY requirements.txt ./
+COPY entrypoint.sh ./
+COPY static/ ./static/
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends postgresql-client && \
     apt-get install -y netcat-traditional && \
     rm -rf /var/lib/apt/lists/* && \
     pip install --upgrade pip && \
-    pip install -r requirements.txt
+    pip install -r requirements.txt && \
+    chmod +x entrypoint.sh && \
+    chmod 777 -R /usr/src/app/static
 
 COPY . .
 
-RUN chmod +x entrypoint.sh
+RUN useradd -m -u 1000 appuser && \
+    mkdir -p /home/appuser/.gunicorn && \
+    chown -R appuser:appuser /home/appuser && \
+    chown -R appuser:appuser /usr/src/app
+ENV HOME=/home/appuser
+USER appuser
 
 ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
 
-RUN chmod -R 777 /usr/src/app/static
-
 EXPOSE 8000
-CMD sh -c "python manage.py runserver 0.0.0.0:8000"
+
+CMD ["sh", "-c", "python manage.py runserver 0.0.0.0:8000"]
